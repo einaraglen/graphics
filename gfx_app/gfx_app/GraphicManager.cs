@@ -12,8 +12,7 @@ namespace gfx_app {
     class GraphicManager {
 
         private readonly Canvas main_canvas;
-
-        //private Ellipse firstChild;
+        private readonly TextManager txtManager;
 
         private double[] prev_x;
         private double[] prev_y;
@@ -23,34 +22,62 @@ namespace gfx_app {
         private int max;
         private int offset;
 
-        private HashSet<Ellipse> roster;
+        private HashSet<Shape> roster;
+
+        private int amount;
+        private int from;
+        private int to;
 
 
-        public GraphicManager(Canvas main_canvas) {
+        public GraphicManager(Canvas main_canvas, TextManager textManager) {
 
             this.main_canvas = main_canvas;
+            this.txtManager = textManager;
 
-            int amount = 6;
+            this.roster = new HashSet<Shape>();
 
+            this.amount = 5;
+            this.from = 20;
+            this.to = 200;
+
+            SetUpVariables();
+
+        }
+
+        public void ChangeTo(int to) {
+            this.to = to;
+            SetUpVariables();
+        }
+
+        public void ChangeFrom(int from) {
+            this.from = from;
+            SetUpVariables();
+        }
+
+        public void ChangeAmount(int amount) {
+            this.amount = amount;
+            SetUpVariables();
+        }
+
+        private void SetUpVariables() {
+
+            this.roster.Clear();
+            this.main_canvas.Children.Clear();
+            
             this.max = 400;
-            this.offset = max / amount;
+            this.offset = max / this.amount;
 
             this.prev_x = new double[this.max * 2];
             this.prev_y = new double[this.max * 2];
 
             this.counter = 0;
 
-            // this.firstChild = CreateEllipse(30, 30, 10, 10);
-
-            //this.main_canvas.Children.Add(this.firstChild);
-
-            this.roster = CreateEllipseStack(amount, 30, 220);
-
+            this.roster = CreateEllipseStack(this.amount, this.from, this.to);
         }
 
-        private HashSet<Ellipse> CreateEllipseStack(int amount, int min, int max) {
+        private HashSet<Shape> CreateEllipseStack(int amount, int min, int max) {
 
-            HashSet<Ellipse> ellipses = new HashSet<Ellipse>();
+            HashSet<Shape> ellipses = new HashSet<Shape>();
 
             int range = max - min;
 
@@ -80,11 +107,9 @@ namespace gfx_app {
 
             int n = 0;
 
+            String update = null;
+
             foreach (Ellipse e in this.roster) {
-
-                //int overThresh = this.counter - this.max - 1;
-
-                //int underThres = (this.max * 2) + (this.counter - this.max - 1);
 
                 int index = 0;
 
@@ -97,15 +122,16 @@ namespace gfx_app {
                 
                 else {
                     index = this.counter - currentOff;
-                }  
-                
+                }
 
-                //Console.Write((n + 1) + " : " + (index) + ", ");
+                update += "E" + (n + 1) + "(" + (index) + ") ";
                 MoveEllipse(e, this.prev_x[index], this.prev_y[index]);
 
                 n++;
 
             }
+
+            this.txtManager.setStatus(update);
 
             this.counter++;
         }

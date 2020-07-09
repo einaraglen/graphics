@@ -6,20 +6,51 @@
         xmlns:local="clr-namespace:gfx_app"
         mc:Ignorable="d"
         Title="testingGFX" Height="450" Width="800" MinHeight="450" MinWidth="800">
+    
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="120"/>
+            <ColumnDefinition Width="190"/>
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="30" />
+        </Grid.RowDefinitions>
 
-        <StackPanel Grid.Column="0">
-            <Label x:Name="position_mouse"></Label>
-        </StackPanel>
+        <Grid Grid.Column="0" ShowGridLines="False" Height="120">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
 
-        <Canvas x:Name="main_canvas" Grid.Column="1" MouseMove="main_canvas_MouseMove" Background="Black">
-            <!-- MouseMove="main_canvas_MouseMove" -->
+            <Label Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center" >Amount</Label>
+
+            <TextBox Grid.Column="1" Grid.Row="0" x:Name="amountField" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="20" TextChanged="TextBox_TextChanged"></TextBox>
+
+            <Label Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center">From->To</Label>
+
+            <TextBox Grid.Row="1" Grid.Column="1" x:Name="from" TextChanged="from_TextChanged"  Height="20" HorizontalAlignment="Left" Width="40"></TextBox>
+
+            <TextBox Grid.Row="1" Grid.Column="1" x:Name="to" TextChanged="to_TextChanged" Height="20" HorizontalAlignment="Right" Width="40"></TextBox>
+
+        </Grid>
+
+        <Canvas x:Name="main_canvas" ClipToBounds="True" Grid.Column="1" MouseMove="main_canvas_MouseMove" Background="Black">
+            
         </Canvas>
-        
-        
+
+        <Border Grid.Column="1" Grid.Row="1" BorderBrush="Beige" BorderThickness="0 1 0 0">
+            <StackPanel Background="Black" >
+                <Label x:Name="bottom_status" HorizontalAlignment="Stretch" Foreground="#FFF"></Label>
+            </StackPanel>
+        </Border>
+
     </Grid>
+    
 </Window>
