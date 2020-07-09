@@ -1,0 +1,8 @@
+{
+  "runtimeOptions": {
+    "additionalProbingPaths": [
+      "C:\\Users\\monga\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\monga\\.nuget\\packages"
+    ]
+  }
+}
