@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Timers;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace gfx_app {
 
@@ -23,11 +26,11 @@ namespace gfx_app {
         private int offset;
 
         private HashSet<Shape> roster;
+        private HashSet<Shape> wireframe;
 
         private int amount;
         private int from;
         private int to;
-
 
         public GraphicManager(Canvas main_canvas, TextManager textManager) {
 
@@ -35,13 +38,27 @@ namespace gfx_app {
             this.txtManager = textManager;
 
             this.roster = new HashSet<Shape>();
+            this.wireframe = new HashSet<Shape>();
 
             this.amount = 5;
             this.from = 20;
             this.to = 200;
+            this.max = 200;
 
             SetUpVariables();
 
+        }
+
+        public void ChangeMax(int newMax) {
+            int _max = newMax;
+            if(newMax % 2 > 0) {
+                //cannot have odd nr, max/2 has to be even
+                _max++;
+            }
+
+            this.max = _max;
+            SetUpVariables();
+            
         }
 
         public void ChangeTo(int to) {
@@ -55,24 +72,50 @@ namespace gfx_app {
         }
 
         public void ChangeAmount(int amount) {
-            this.amount = amount;
-            SetUpVariables();
+            if(amount > 300) {
+                Console.WriteLine("overload");
+            }
+
+            else {
+                this.amount = amount;
+                SetUpVariables();
+            }
+            
         }
 
         private void SetUpVariables() {
 
+            //has to be twice the size at all times
+            this.prev_x = new double[this.max * 2];
+            this.prev_y = new double[this.max * 2];
+
             this.roster.Clear();
             this.main_canvas.Children.Clear();
             
-            this.max = 400;
-            this.offset = max / this.amount;
+            this.offset = this.max / this.amount;
 
-            this.prev_x = new double[this.max * 2];
-            this.prev_y = new double[this.max * 2];
 
             this.counter = 0;
 
             this.roster = CreateEllipseStack(this.amount, this.from, this.to);
+            this.wireframe = CreateWireFrame(this.amount);
+        }
+
+        private HashSet<Shape> CreateWireFrame(int amount) {
+
+            HashSet<Shape> wires = new HashSet<Shape>();
+
+            for(int i = 0; i < amount - 1; i++) {
+                Line line = CreateLine(0, 0, 0, 0);
+
+                wires.Add(line);
+
+                this.main_canvas.Children.Add(line);
+            }
+
+
+            return wires;
+
         }
 
         private HashSet<Shape> CreateEllipseStack(int amount, int min, int max) {
@@ -85,7 +128,7 @@ namespace gfx_app {
 
             for(int i = 0; i < amount; i++) {
 
-                Ellipse ellipse = CreateEllipse(min + (step * i), min + (step * i), 10, 10);
+                Ellipse ellipse = CreateEllipse(min + (step * i), min + (step * i));
 
                 ellipses.Add(ellipse);
 
@@ -98,10 +141,12 @@ namespace gfx_app {
 
         public void UpdateCursonPoint(double x, double y) {
 
+            Point[] points = new Point[this.roster.Count()];
+
             if (!(this.counter < (this.max * 2))) {
                 this.counter = 0;
             }
-
+            
             this.prev_x[this.counter] = x;
             this.prev_y[this.counter] = y;
 
@@ -127,9 +172,22 @@ namespace gfx_app {
                 update += "E" + (n + 1) + "(" + (index) + ") ";
                 MoveEllipse(e, this.prev_x[index], this.prev_y[index]);
 
+                points[n] = new Point(this.prev_x[index], this.prev_y[index]);
+                
                 n++;
 
             }
+
+            int c = 0;
+
+            foreach(Line line in this.wireframe) {
+
+                MoveLine(line, points[c], points[c + 1]);
+
+                c++;
+            }
+
+            Console.WriteLine(c);
 
             this.txtManager.setStatus(update);
 
@@ -141,7 +199,15 @@ namespace gfx_app {
             Canvas.SetTop(ellipse, y - ellipse.ActualWidth/2);
         }
 
-        private Ellipse CreateEllipse(int height, int width, double x, double y) {
+        private void MoveLine(Line line, Point start, Point end) {
+            line.X1 = start.X;
+            line.Y1 = start.Y;
+
+            line.X2 = end.X;
+            line.Y2 = end.Y;
+        }
+
+        private Ellipse CreateEllipse(int height, int width) {
             Ellipse current = new Ellipse();
             SolidColorBrush brush = new SolidColorBrush();
 
@@ -152,11 +218,23 @@ namespace gfx_app {
             current.Height = height;
             current.Width = width;
             current.Fill = brush;
-            /*
-            Canvas.SetLeft(current, x - height/2);
-            Canvas.SetTop(current, y - width/2);
-            */
+          
             return current;
+        }
+
+        private Line CreateLine(int x1, int y1, int x2, int y2) {
+            Line line = new Line();
+
+            line.X1 = x1;
+            line.Y1 = y1;
+
+            line.X2 = x2;
+            line.Y2 = y2;
+
+            line.StrokeThickness = 1;
+            line.Stroke = System.Windows.Media.Brushes.LightSteelBlue;
+
+            return line;
         }
 
     }

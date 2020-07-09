@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -11,6 +13,7 @@ using System.Windows.Documents;
 using System.Windows.Ink;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -23,64 +26,48 @@ namespace gfx_app {
         private readonly GraphicManager graphicManager;
         private readonly TextManager txtManager;
 
-        private int i = 0;
+        private Point pos;
+
 
         public MainWindow() {
 
             InitializeComponent();
 
+
             this.txtManager = new TextManager(bottom_status);
 
             this.graphicManager = new GraphicManager(main_canvas, this.txtManager);
 
+
         }
-
-        private void _timer_Tick(object sender, EventArgs e) {
-            // called every tick
-
-            Point position = Mouse.GetPosition(main_canvas);
-            this.graphicManager.UpdateCursonPoint(position.X, position.Y);
-
-            Console.WriteLine(i);
-            this.i++;
-        }
-    
 
         private void main_canvas_MouseMove(object sender, MouseEventArgs e) {
             
-            Point position = Mouse.GetPosition(main_canvas);
-            this.graphicManager.UpdateCursonPoint(position.X, position.Y);
+            this.pos = Mouse.GetPosition(main_canvas);
+            this.graphicManager.UpdateCursonPoint(this.pos.X, this.pos.Y);
             
         }
 
-        private void Load_Timer(object sender, RoutedEventArgs e) {
-            /*var timer = new DispatcherTimer(); // creating a new timer
-            timer.Interval = TimeSpan.FromMilliseconds(1); // this timer will trigger every 10 milliseconds
-            timer.Start(); // starting the timer
-            timer.Tick += _timer_Tick; // with each tick it will trigger this function*/
-        }
+        private void amount_TextChanged(object sender, TextChangedEventArgs e) {
 
-        private void TextBox_TextChanged(object sender, TextChangedEventArgs e) {
-
-            if(System.Text.RegularExpressions.Regex.IsMatch(amountField.Text, "[^0-9]")) {
+            if (System.Text.RegularExpressions.Regex.IsMatch(amountField.Text, "[^0-9]")) {
                 amountField.Text = "";
-            }
-
-            else {
+            } else {
 
                 try {
 
                     int change = int.Parse(amountField.Text, NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite);
+                    if(change != 0) {
+                        this.graphicManager.ChangeAmount(change);
+                    }
 
-
-                    this.graphicManager.ChangeAmount(change);
 
                 } catch (Exception exp) {
-                    //Console.WriteLine(exp.Message);
+                    Console.WriteLine(exp.Message);
                 }
 
             }
-    
+
         }
 
         private void from_TextChanged(object sender, TextChangedEventArgs e) {
@@ -97,7 +84,7 @@ namespace gfx_app {
                     this.graphicManager.ChangeFrom(change);
 
                 } catch (Exception exp) {
-                    //Console.WriteLine(exp.Message);
+                    Console.WriteLine(exp.Message);
                 }
 
             }
@@ -118,11 +105,32 @@ namespace gfx_app {
                     this.graphicManager.ChangeTo(change);
 
                 } catch (Exception exp) {
-                    //Console.WriteLine(exp.Message);
+                    Console.WriteLine(exp.Message);
                 }
 
             }
         }
+
+        private void max_TextChanged(object sender, TextChangedEventArgs e) {
+
+            if (System.Text.RegularExpressions.Regex.IsMatch(max.Text, "[^0-9]")) {
+                max.Text = "";
+            } else {
+
+                try {
+
+                    int change = int.Parse(max.Text, NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite);
+
+
+                    this.graphicManager.ChangeMax(change);
+
+                } catch (Exception exp) {
+                    Console.WriteLine(exp.Message);
+                }
+
+            }
+        }
+
     }
 
     
