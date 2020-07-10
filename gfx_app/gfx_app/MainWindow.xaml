@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:gfx_app"
         mc:Ignorable="d"
-        Title="testingGFX" Height="450" Width="800" MinHeight="450" MinWidth="800">
+        Title="TRAILR" Height="450" Width="800" MinHeight="450" MinWidth="800">
     
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <Grid.ColumnDefinitions>
@@ -43,9 +43,18 @@
 
             <TextBox Grid.Row="2" Grid.Column="1" x:Name="max" TextChanged="max_TextChanged"  Height="20" HorizontalAlignment="Stretch"></TextBox>
 
+            <ComboBox Grid.Row="3" x:Name="types" SelectionChanged="ComboBox_SelectionChanged">
+                <ComboBoxItem>Rectangle</ComboBoxItem>
+                <ComboBoxItem>Ellipse</ComboBoxItem>
+            </ComboBox>
+            <ComboBox Grid.Row="3" Grid.Column="1" x:Name="wireframe" SelectionChanged="wireframe_SelectionChanged">
+                <ComboBoxItem>Wire On</ComboBoxItem>
+                <ComboBoxItem>Wire Off</ComboBoxItem>
+            </ComboBox>
+
         </Grid>
 
-        <Canvas x:Name="main_canvas" ClipToBounds="True" MouseMove="main_canvas_MouseMove" Grid.Column="1"  Background="Black">
+        <Canvas x:Name="main_canvas" ClipToBounds="True" Grid.Column="1"  Background="Black">
             <!--MouseMove="main_canvas_MouseMove"-->
         </Canvas>
 

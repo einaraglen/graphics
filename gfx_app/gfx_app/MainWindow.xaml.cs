@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -26,8 +27,7 @@ namespace gfx_app {
         private readonly GraphicManager graphicManager;
         private readonly TextManager txtManager;
 
-        private Point pos;
-
+        private Point pos; 
 
         public MainWindow() {
 
@@ -35,102 +35,106 @@ namespace gfx_app {
 
 
             this.txtManager = new TextManager(bottom_status);
+            Profile profile = new Profile(15, 10, 90, 70, GShape.Rectangle, true);
 
-            this.graphicManager = new GraphicManager(main_canvas, this.txtManager);
+            this.graphicManager = new GraphicManager(main_canvas, this.txtManager, profile);
 
+            SetStart(profile);
 
+            //Renderer
+            CompositionTarget.Rendering += DoUpdates;
         }
 
-        private void main_canvas_MouseMove(object sender, MouseEventArgs e) {
-            
+        private void SetStart(Profile profile) {
+            amountField.Text = profile.ShapeCount.ToString();
+            from.Text = profile.StartSize.ToString();
+            to.Text = profile.EndSize.ToString();
+            max.Text = profile.MaxDelay.ToString();
+
+            types.SelectedIndex = 1;
+
+            if(profile.WireOn) {
+                wireframe.SelectedIndex = 0;
+            }
+
+            else {
+                wireframe.SelectedIndex = 1;
+            }
+        }
+
+        private void DoUpdates(object sender, EventArgs e) {
+
             this.pos = Mouse.GetPosition(main_canvas);
             this.graphicManager.UpdateCursonPoint(this.pos.X, this.pos.Y);
-            
+
         }
 
-        private void amount_TextChanged(object sender, TextChangedEventArgs e) {
+        private int GetIntFrom(TextBox sender) {
 
-            if (System.Text.RegularExpressions.Regex.IsMatch(amountField.Text, "[^0-9]")) {
-                amountField.Text = "";
+            int change = 1;
+
+            if (System.Text.RegularExpressions.Regex.IsMatch(sender.Text, "[^0-9]")) {
+                sender.Text = "";
             } else {
 
                 try {
 
-                    int change = int.Parse(amountField.Text, NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite);
-                    if(change != 0) {
-                        this.graphicManager.ChangeAmount(change);
+                    change = int.Parse(sender.Text, NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite);
+                    if (change == 0) {
+                        change = 1;
                     }
 
 
                 } catch (Exception exp) {
-                    Console.WriteLine(exp.Message);
+                    String err = exp.Message;
+                    sender.Text = "";
                 }
 
             }
+
+            return change;
+
+        }
+
+        private void amount_TextChanged(object sender, TextChangedEventArgs e) {
+
+            int change = GetIntFrom(amountField);
+
+            this.graphicManager.DoChange(GAction.ChangeCount, change);
 
         }
 
         private void from_TextChanged(object sender, TextChangedEventArgs e) {
 
-            if (System.Text.RegularExpressions.Regex.IsMatch(from.Text, "[^0-9]")) {
-                from.Text = "";
-            } else {
+            int change = GetIntFrom(from);
 
-                try {
-
-                    int change = int.Parse(from.Text, NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite);
-
-
-                    this.graphicManager.ChangeFrom(change);
-
-                } catch (Exception exp) {
-                    Console.WriteLine(exp.Message);
-                }
-
-            }
+            this.graphicManager.DoChange(GAction.ChangeFrom, change);
 
         }
 
         private void to_TextChanged(object sender, TextChangedEventArgs e) {
 
-            if (System.Text.RegularExpressions.Regex.IsMatch(to.Text, "[^0-9]")) {
-                to.Text = "";
-            } else {
+            int change = GetIntFrom(to);
 
-                try {
-
-                    int change = int.Parse(to.Text, NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite);
-
-
-                    this.graphicManager.ChangeTo(change);
-
-                } catch (Exception exp) {
-                    Console.WriteLine(exp.Message);
-                }
-
-            }
+            this.graphicManager.DoChange(GAction.ChangeTo, change);
         }
 
         private void max_TextChanged(object sender, TextChangedEventArgs e) {
 
-            if (System.Text.RegularExpressions.Regex.IsMatch(max.Text, "[^0-9]")) {
-                max.Text = "";
-            } else {
+            int change = GetIntFrom(max);
 
-                try {
-
-                    int change = int.Parse(max.Text, NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite);
-
-
-                    this.graphicManager.ChangeMax(change);
-
-                } catch (Exception exp) {
-                    Console.WriteLine(exp.Message);
-                }
-
-            }
+            this.graphicManager.DoChange(GAction.ChangeMax, change);
         }
 
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+
+            this.graphicManager.DoChange(GAction.ChangeShape, types.SelectedIndex);
+        }
+
+        private void wireframe_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+
+            this.graphicManager.DoChange(GAction.Wireframe, wireframe.SelectedIndex);
+        }
     }
 
     
