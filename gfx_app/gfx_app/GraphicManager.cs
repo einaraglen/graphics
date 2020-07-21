@@ -44,6 +44,7 @@ namespace gfx_app {
         private HashSet<Shape> wireframe;
 
         private Point currentPoint;
+        private Point[] oldPoints;
 
         public GraphicManager(Canvas main_canvas, TextManager textManager, Profile profile) {
 
@@ -57,6 +58,7 @@ namespace gfx_app {
 
             this.profile = profile;
             this.currentPoint = new Point();
+            this.oldPoints = new Point[1];
 
             SetUpVariables();
 
@@ -134,9 +136,11 @@ namespace gfx_app {
             this.currentPoint = new Point(x, y);
             if(x < 0 || y < 0) {
 
+                //center screen
                 //x = this.main_canvas.ActualWidth / 2;
                 //y = this.main_canvas.ActualHeight / 2;
 
+                //follows sequenser
                 x = 0 + this.sequencer.X;
                 y = 0 + this.sequencer.Y;
                           
@@ -147,8 +151,13 @@ namespace gfx_app {
 
         private void RendreCanvas(double x, double y) {
 
-            //needs to detect if roster has not changed so that shapes do not need to be rendred in corner again
             Point[] points = new Point[this.roster.Count()];
+
+            //checks for change in shapecount, if not, keep old points
+            if (this.oldPoints.Length == points.Length) {
+                points = this.oldPoints;
+            } 
+
 
             if (!(this.counter < (this.profile.MaxDelay * 2))) {
                 this.counter = 0;
@@ -167,7 +176,9 @@ namespace gfx_app {
                 if (this.counter < currentOff) {
                     index = (this.profile.MaxDelay * 2) - (currentOff - this.counter);
 
-                } else {
+                } 
+                
+                else {
                     index = this.counter - currentOff;
                 }
 
@@ -188,12 +199,16 @@ namespace gfx_app {
             if (this.profile.WireOn) {
                 MoveLines(points);
                 update += ", Lines : " + this.wireframe.Count();
-            } else {
+            } 
+            
+            else {
                 hideLines();
                 update += " Lines : 0";
             }
 
             update += ", Following : x: " + x + ", y: " + (int)y;
+
+            this.oldPoints = points;
 
             this.txtManager.setStatus(update);
 
@@ -226,8 +241,8 @@ namespace gfx_app {
         private void MoveLine(Line line, Point start, Point end) {
             //preventing wild threds on screen when big change
 
-            double ls = Math.Abs((int)(end.X - start.X)^2);
-            double rs = Math.Abs((int)(end.Y - start.Y)^2);
+            double ls = Math.Abs((int)(start.X - end.X)^2);
+            double rs = Math.Abs((int)(start.Y - end.Y)^2);
 
 
             double dist = Math.Sqrt(ls + rs);
